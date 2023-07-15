@@ -11,6 +11,7 @@ function installCert {
 	local cert="$1"
 	local certName="$2"
 	[[ "$cert" = "" ]] && showHelp && return;
+	[[ "$certName" = "" ]] && showHelp && return;
 	sudo cp $cert /usr/local/share/ca-certificates/$certName.crt
 	sudo update-ca-certificates
 }
