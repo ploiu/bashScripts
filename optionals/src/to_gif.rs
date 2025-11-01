@@ -18,7 +18,8 @@ struct Args {
 
     /// the scale of the output file as a percentage. Anything below 1 will be treated as 100%
     #[clap(short = 's', long = "scale", value_name = "SCALE", conflicts_with_all = ["width", "height"])]
-    scale: Option<u32>,
+    /// Scale multiplier for output dimensions (e.g. 0.5 = half size). Values <= 0 treated as 1.0
+    scale: Option<f32>,
 
     /// Width of the output file in pixels, use -1 to preserve aspect
     #[clap(short, long, default_value_t = -1)]
@@ -52,11 +53,11 @@ fn main() {
         path
     });
 
-    // default 0 -> 100 for scale
     let args = Args {
         file: args.file.clone(),
         fps: args.fps,
-        scale: args.scale.map(|it| if it == 0 { 100 } else { it }),
+        // ensure scale is a valid value
+        scale: args.scale.map(|s| if s <= 0.0 { 1.0 } else { s }),
         width: args.width,
         height: args.height,
         output: args.output,
@@ -125,7 +126,13 @@ fn convert_video(file_name: &str, args: Args, output_path: &Path) {
         output: _,
     } = args;
     let palette_name = format!("{file_name}_palette.png");
-    let filter = format!("fps={fps},scale={width}:{height},paletteuse=dither=bayer");
+
+    let filter = if let Some(s) = scale {
+        // s is a multiplier; scale both dimensions by s (e.g. 0.5 halves size)
+        format!("fps={fps},scale=iw*{s}:ih*{s},paletteuse=dither=bayer")
+    } else {
+        format!("fps={fps},scale={width}:{height},paletteuse=dither=bayer")
+    };
 
     let status = Command::new("ffmpeg")
         .arg("-i")
