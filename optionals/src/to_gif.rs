@@ -37,6 +37,12 @@ fn main() {
         .file_stem()
         .and_then(|it| it.to_str())
         .expect("Could not get file name!");
+
+    if !args.file.exists() {
+        println!("the passed file does not exist");
+        exit(1)
+    }
+
     gen_palette(args.fps, file_name, &args.file);
 
     // Convert the video to GIF using the generated palette
