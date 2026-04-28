@@ -1,3 +1,7 @@
+> [!NOTE]
+> 
+> This repository is archived. The new location can be found at https://codeberg.org/ploiu/bashScripts
+
 # bashScripts
 
 A collection of common scripts I use on linux across multiple computers. To use
